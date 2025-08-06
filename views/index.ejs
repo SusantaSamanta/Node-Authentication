@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Country Explorer</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        * {
+            padding: 0px;
+            margin: 0px;
+            box-sizing: border-box;
+        }
+
+        .home-page {
+            margin: 0;
+            padding: 0;
+            font-family: sans-serif;
+            background: url('./images/home.jpg') no-repeat center center;
+            background-size: cover;
+            height: 100vh;
+            /* border: 10px solid red; */
+        }
+
+        .overlay {
+            background-color: #000000af;
+            color: #fff;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 0 20px;
+        }
+
+        #homeDetail {
+            margin-bottom: 60px;
+
+            h1 {
+                font-size: 60px;
+                margin-bottom: 1rem;
+                font-weight: 700;
+            }
+
+            p {
+                font-size: 1.25rem;
+                margin-bottom: 2rem;
+            }
+
+            .btn {
+                display: inline-block;
+                background-color: white;
+                color: #333;
+                font-weight: 600;
+                padding: 16px 24px;
+                border-radius: 25px;
+                text-decoration: none;
+                transition: background-color 0.3s ease;
+            }
+
+            .btn:hover {
+                background-color: #cbcbcb;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <%- include('components/naveBar') %>
+        <section class="home-page">
+
+            <div class="overlay">
+                <div id="homeDetail">
+                    <h1>Discover the World</h1>
+                    <p>Search for any country to view its flag, capital, currency, population, and more.</p>
+                    <a href="/countryapp" class="btn">Launch App Now</a>
+                </div>
+            </div>
+        </section>
+    <%- include('components/footer') %>
+</body>
+
+</html>

@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        * {
+            margin: 0px;
+            padding: 0px;
+            box-sizing: border-box;
+        }
+
+        #appBody {
+            height: 100vh;
+            background: #1d1d1d;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        #jokesContainer {
+            min-height: 300px;
+            width: 650px;
+            padding-block: 20px;
+            background: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            border-radius: 20px;
+
+            h1 {
+                font-size: 35px;
+                letter-spacing: 2px;
+                margin-bottom: 20px;
+            }
+        }
+
+        #jokesDiv {
+            width: 550px;
+            min-height: 50px;
+            text-align: center;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 20px;
+            font-size: 18px;
+            letter-spacing: 1px;
+            font-weight: 500;
+            border: 0px solid red;
+        }
+
+        #newButton {
+            height: 40px;
+            padding-inline: 20px;
+            font-size: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: 600;
+            outline: 2px solid rgb(9, 9, 9);
+            border: 3px solid rgb(255, 255, 255);
+            background: yellow;
+            border-radius: 40px;
+            cursor: pointer;
+        }
+    </style>
+
+</head>
+
+<body>
+    <%- include("components/naveBar") %>
+    <div id="appBody">
+        <section id="jokesContainer">
+            <h1>Welcome to Jokes Center 🤣</h1>
+            <div id="jokesDiv">
+                I am an whiskey diet I have lost three days already.
+            </div>
+            <div id="newButton">Get new Jokes</div>
+        </section>
+    </div>
+    <%- include("components/footer") %>
+    <script>
+
+
+        const apiUrl = "https://icanhazdadjoke.com/";
+        showJokes = async () => {
+            try {
+                const response = await fetch(apiUrl, {
+                    headers: {
+                        Accept: "application/json",
+                    },
+                });
+                const data = await response.json();
+                console.log(data.id);
+                
+                console.log(data.joke);
+                document.getElementById("jokesDiv").innerText = data.joke;
+
+            }
+            catch (err) {
+                window.alert("Some thing wrong please try again");
+                console.log(err);
+            }
+        }
+
+        document.getElementById("newButton").addEventListener('click', showJokes);
+
+    </script>
+
+
+</body>
+
+</html>

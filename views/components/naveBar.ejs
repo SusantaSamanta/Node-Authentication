@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        * {
+            margin: 0px;
+            padding: 0px;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        #naveBar {
+            height: 40px;
+            width: 100%;
+            margin-bottom: 50px;
+            padding-right: 50px;
+            position: fixed;
+            z-index: 10;
+            background: #18181881;
+            backdrop-filter: blur(80px);
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+
+            .naveLinks {
+                margin-left: 20px;
+                padding: 5px;
+                color: white;
+                text-decoration: none;
+                /* border: 1px solid red; */
+            }
+
+            .naveLinks2 {
+                height: 40px;
+                width: 40px;
+                padding: 8px;
+                margin-left: 20px;
+                color: white;
+                text-decoration: none;
+                overflow: hidden;
+                /* border: 1px solid red; */
+                #naveProfile{
+                    height: 100%;
+                    border-radius: 50%;
+                    border: 2px solid white;
+                }
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div id="naveBar">
+        <a class="naveLinks" href="/">Home</a>
+        <a class="naveLinks" href="/login">Login</a>
+        <a class="naveLinks" href="/register">Sign up</a>
+        <a class="naveLinks2" href="/profile"><img id="naveProfile" src="../images/default-profile.jpg" /></a>
+        
+    </div>
+    <script>
+        const naveLinks2 = document.querySelector(".naveLinks2");
+        const userProfileShowOrNot = async () => {
+            const response = await fetch('/login/isUserLogin', {
+                method: "GET",
+            });
+            const { userLoginOrNot } = await response.json();
+            naveLinks2.style.display = userLoginOrNot ? 'block' : 'none';
+        }
+        userProfileShowOrNot();
+
+
+    </script>
+</body>
+
+
+</html>

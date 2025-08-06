@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        * {
+            padding: 0;
+            margin: 0;
+            box-sizing: border-box;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        #registerPageContainer {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+            background: url('./images/background.png');
+            background-size: 110%;
+            background-position: center;
+            background-repeat: no-repeat;
+            color: white;
+        }
+
+        #fromContainer {
+            /* height: 100vh; */
+            width: 55%;
+            display: flex;
+            margin-top: 20px;
+            flex-direction: column;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+            /* border: 01px solid red; */
+        }
+
+        #heading {
+            font-size: 30px;
+            font-weight: 700;
+            text-align: center;
+            word-spacing: 4px;
+            margin-bottom: 35px;
+        }
+
+        #title {
+            text-align: center;
+            font-size: 25px;
+            margin-bottom: 25px;
+            font-weight: 700;
+            border: 0px solid #ffc1c1;
+        }
+
+
+
+        #inputSection {
+            width: 55%;
+            margin-top: 0px;
+            padding: 30px 40px 40px 40px;
+            background: #9b9b9b22;
+            backdrop-filter: blur(50px);
+            border: 0px solid #ffc1c1;
+            border-radius: 30px;
+
+            p {
+                font-size: 15px;
+                color: #dddddd;
+                font-weight: 700;
+                margin-block: 10px;
+            }
+        }
+
+
+        .textInp {
+            height: 35px;
+            width: 100%;
+            margin-bottom: 12px;
+            background-color: #a6a6a65b;
+            border-radius: 10px;
+            border: 1px solid #929292;
+            padding-left: 15px;
+            cursor: text;
+            color: #ffffff;
+            font-size: 14px;
+            letter-spacing: 2px;
+        }
+
+        .textInp:hover {
+            border: 1px solid #d3d3d3;
+        }
+
+        #submitBtn {
+            height: 40px;
+            width: 40%;
+            margin-left: 30%;
+            margin-top: 30px;
+            background-color: #f37b17e3;
+            border-radius: 10px;
+            border: 1px solid #c45a00;
+            padding-left: 15px;
+            cursor: pointer;
+            color: #ffffff;
+            font-size: 18px;
+            font-weight: 700;
+            letter-spacing: 2px;
+        }
+    </style>
+</head>
+
+<%- include('../components/naveBar') %>
+
+    <body>
+        <section id="registerPageContainer">
+
+            <div id="fromContainer">
+                <h1 id="heading">Welcome You to Discover the World</h1>
+                <form id="inputSection"> 
+                    <!-- action="/login" method="POST" -->
+                    <h1 id="title">Login</h1>
+                    <p>Enter Your Email</p>
+                    <input type="text" class="textInp" required="true" name="email">
+                    <p>Enter Password</p>
+                    <input type="text" class="textInp" required="true" name="password">
+                    <button type="submit" id="submitBtn">Login</button>
+                </form>
+            </div>
+
+        </section>
+        <script>
+
+            const loginForm = document.getElementById("inputSection");
+            loginForm.addEventListener('submit', async () => {
+                event.preventDefault();
+                const formInput = new FormData(loginForm);
+                const inputData = {
+                    email: formInput.get('email'),
+                    password: formInput.get('password'),
+                }
+                const res = await fetch("/login", {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(inputData),
+                });
+                const response = await res.json();
+                // console.log(response);
+                if(response.success){
+                    alert(response.massage);
+                    window.location.href = '/';
+                }
+                else if(response.case == "PWNM"){ // password not matched
+                    alert(response.massage);
+                }
+                else{  // user not found
+                    alert(response.massage);
+                    window.location.href = '/register';
+                }
+            });
+
+        </script>
+    </body>
+    <%- include('../components/footer') %>
+
+</html>

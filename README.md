@@ -1,2 +1,2 @@
 # Node-Authentication
-Authentication system using Node.js, Email verification using Nodemailer 
+Authentication system using Express, Email verification using Nodemailer, 
