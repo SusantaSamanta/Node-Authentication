@@ -90,7 +90,7 @@ s8 :   create '/register (post) in routes
        create route controller postRegister
             depending on user model  
                 check user email is already exists or not 
-                    if not present : insert req.body data in user model
+                    if not present : insert req.body data in user model by (userModel.create(userData)) 
                     else : send false response to frontend 
 
 s8.1: in app.js add : app.use(express.json()); 
@@ -110,9 +110,22 @@ S00 :  Now hash the user password and store it in DB
             using package : npm i bcrypt
                 to hash password we use : await bcrypt.hash(password, 10);  [where 10 is the salt value]  store this hash PW in DB
                 to compare user password store in db we use : await bcrypt.compare(userEnteredPW, hashPWInDB); it will automatically compare each of them 
-    BUT WE CAN'T USE IT IN OUR PROJECT WE USE :
+    BUT WE CAN'T USE IT IN OUR PROJECT WE USE : argon2  
 
-S10: 9
+S10 :   9 We use argon2 for password hashing : 
+            npm i argon2;
+                in side register(post) : after chalking user existence 
+                    save user enter PW with hash in DB : 
+                       hashPW = await argon2.hash(password);
+
+                in side login(post) : after chalking user existence 
+                    check user entered PW == DB PW
+                       like : const check = await argon2.verify(DBHashedPW, userEnteredPW);
+                          if(check): login , else : not
+
+s11: JWT instead of session base token :
+        npm i jsonwebtoken 
+    
 
 
 

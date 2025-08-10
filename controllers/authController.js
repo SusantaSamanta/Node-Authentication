@@ -1,5 +1,5 @@
 import { user } from "../model/userSchema.js";
-
+import argon2 from 'argon2';
 
 
 export const getRegisterPage = (req, res) => {  // after click : /register(get)   this function will run
@@ -14,12 +14,13 @@ export const postRegister = async (req, res) => {    // after click : /register(
    if (result) {   // if find it return object : true [mean user already exists]
       res.status(409).json({ success: false, massage: "In this email user already exists...!" });
    } else {   // else return null: false [mean user not exists]
+      const hashPW = await argon2.hash(password); // hash the PW and save in DB
       const data = {
          name: name,
          email: email,
-         password: password,
+         password: hashPW,
       }
-      await user.insertOne(data);
+      await user.create(data);
       res.status(201).json({ success: true, massage: "User registration successful.....!" })
    }
 }
@@ -43,14 +44,16 @@ export const postLogin = async (req, res) => {     // after click : /login(POST)
    const { email, password } = req.body;
    const isUserExist = await user.findOne({ email: email });
    if (isUserExist) {
-      if (isUserExist.password == password) {
+      // if (isUserExist.password == password) {
+      const pwMatchOrNot = await argon2.verify(isUserExist.password, password);    // it can compare (dbHashedPW, userEnteredPW)
+      if (pwMatchOrNot) {
          res.cookie("isLogin", true);
          res.status(200).json({ success: true, massage: `Welcome ${isUserExist.name}` });
       } else {
          res.status(401).json({ success: false, case: 'PWNM', massage: `Password not matched......` });
       }
    } else {
-      res.status(404).json({ success: false, case: 'UNF',massage: `User not found please register first......` });
+      res.status(404).json({ success: false, case: 'UNF', massage: `User not found please register first......` });
    }
 }
 
