@@ -1,5 +1,9 @@
 import { user } from "../model/userSchema.js";
 import argon2 from 'argon2';
+import dotenv from 'dotenv';
+dotenv.config()
+import jwt from "jsonwebtoken";
+
 
 
 export const getRegisterPage = (req, res) => {  // after click : /register(get)   this function will run
@@ -47,12 +51,20 @@ export const postLogin = async (req, res) => {     // after click : /login(POST)
       // if (isUserExist.password == password) {
       const pwMatchOrNot = await argon2.verify(isUserExist.password, password);    // it can compare (dbHashedPW, userEnteredPW)
       if (pwMatchOrNot) {
-         res.cookie("isLogin", true);
+         // res.cookie("isLogin", true);
+         const { name, email } = isUserExist;
+         const jwToken = jwt.sign({ name, email }, process.env.JWT_SECRET_KEY, { expiresIn: "3d" });
+         res.cookie("accessToken", jwToken); //this jwt token will be store as cookie
+
+
+
          res.status(200).json({ success: true, massage: `Welcome ${isUserExist.name}` });
-      } else {
+      }
+      else {
          res.status(401).json({ success: false, case: 'PWNM', massage: `Password not matched......` });
       }
-   } else {
+   }
+   else {
       res.status(404).json({ success: false, case: 'UNF', massage: `User not found please register first......` });
    }
 }
@@ -62,10 +74,17 @@ export const postLogin = async (req, res) => {     // after click : /login(POST)
 
 
 export const isUserLoginResponse = (req, res) => {
-   const isLogin = Boolean(req.cookies.isLogin);
-   if (isLogin == true) {
+   // const isLogin = Boolean(req.cookies.isLogin);
+   if (req.user) {
       res.json({ userLoginOrNot: true });
    } else {
       res.json({ userLoginOrNot: false });
    }
+}
+
+
+
+export const logoutUssr = (req, res) => {
+   res.clearCookie("accessToken");
+   res.redirect('/');
 }

@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>User Profile</title>
+    <style>
+        * {
+            padding: 0px;
+            margin: 0px;
+            box-sizing: border-box;
+        }
+
+
+        #profileContainer {
+            margin: 0;
+            padding: 0;
+            font-family: "Segoe UI", sans-serif;
+            background: #f3f4f6;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: url('./images/background.png') no-repeat center center;
+            background-size: cover;
+        }
+
+        .profile-card {
+            width: 380px;
+            padding-block: 60px;
+            border: 1px solid #9b9b9b63;
+            border-radius: 12px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+            background: #9b9b9b22;
+            backdrop-filter: blur(50px);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .profile-card:hover {
+            border: 1px solid #9b9b9bc2;
+        }
+
+        #profileIngContainer {
+            width: 100px;
+            height: 100px;
+            margin-bottom: 1rem;
+            border: 3px solid white;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+
+            img {
+                height: 100%;
+                width: 100%;
+                object-fit: cover;
+                border-radius: 50%;
+            }
+        }
+
+        .profile-card h2 {
+            margin: 0.5rem 0;
+            font-size: 25px;
+            color: white;
+        }
+
+        .profile-card p {
+            margin: 0.3rem 0;
+            color: white;
+            /* font-size: px; */
+        }
+
+        #logout-btn {
+            margin-top: 1.5rem;
+            padding: 10px 20px;
+            background-color: #ef4444;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: background 0.3s ease;
+        }
+
+        #logout-btn:hover {
+            background-color: #dc2626;
+        }
+    </style>
+</head>
+
+<body>
+    <%- include('components/naveBar') %>
+        <section id="profileContainer">
+            <div class="profile-card">
+                <!-- <img src="https://i.pravatar.cc/100" alt="User Profile" /> -->
+                <div id="profileIngContainer">
+                    <img src="../images/default-profile.jpg" alt="User Profile" />
+                </div>
+                <h2 id="userName">John Doe</h2>
+                <p id="userEmail">Email: johndoe@example.com</p>
+                <button id="logout-btn" onclick="handleLogout()">Logout</button>
+            </div>
+        </section>
+        <%- include('components/footer') %>
+            <script>
+                function handleLogout() {
+                    // Send logout request or clear cookies/session here
+                    window.location.href = '/logout';
+                }
+                const loadUserDetails = async () => {
+                    try {
+                        const response = await fetch('/profile/userData', {
+                            method: 'get',
+                        })
+                        const userData = await response.json();
+                        // console.log(userData);
+                        userName.innerText = userData.name;
+                        userEmail.innerText = `Email : ${userData.email}`;
+                    } catch (error) {
+                        console.log(error);
+                    }
+
+                }
+                loadUserDetails();
+
+            </script>
+</body>
+
+</html>

@@ -5,6 +5,7 @@ import { authRoutes } from './routers/authRoutes.js';
 import cookieParser from 'cookie-parser';
 import { countryAppRoutes } from './routers/countryAppRoutes.js';
 import { profileRouter } from './routers/profileRoutes.js';
+import { verifyAuthentication } from './middleware/verifyMiddleware.js';
 
 
 import { connectDB } from './DB-Connection.js';
@@ -22,6 +23,8 @@ app.get('/', (req, res) => {
 });
 
 app.use(cookieParser());   // This middleWare is use for manege cookies // and we have to use it before those roots which we use 
+
+app.use(verifyAuthentication);
 
 app.use(authRoutes);      // '/register', '/login' routers are control from this route
 app.use(countryAppRoutes);
@@ -125,8 +128,41 @@ S10 :   9 We use argon2 for password hashing :
 
 s11: JWT instead of session base token :
         npm i jsonwebtoken 
-    
+            inside login (post) : 
+                if userEnteredPW == DBPw 
+                    create an token using JWT :
+                        like : token = jwt.sign({userName, userEmail...}, SecretKey, {expiresIn: "10d"})
+                                                        👆 payload where user details give          
+                        jwt.sign(Headers, Payload, Signature)    Headers will automatic set
 
+s11.2 : Verify this token : instead of Boolean(req.cookies.isLogin);
+        using a middleware called verifyAuthentication from 'middleware/verifyAuth...js'
+        we use it in app.js: app.use(verifyAuthentication)
+            FOR EVERY ROUTE ACCESS THIS WILL RUN :
+                verifyAuthentication(req, res, nest) => { // 3 parameter are use where 
+                    const token = req.cookies.accessToken;
+                    if token : 
+                        decode cookies token like : - 
+                        const decodedToken = jwt.verify(token, process.env.JWT_SECRET_KEY);
+                            and set it in req.user   whish is called custom property : 
+                }
+            And use it for check cookies instead of isLogin == true (in countryApp routes or more )
+
+S12 :  Protect routes : profile (get)
+            if req.user : present : then show user using req.user custom obj 
+            else : redirect to /login 
+
+S13 :  create Protect routes : 
+            using : req.user value : 
+                if(req.user){
+                    res.render("this page");
+                }else{
+                    res.redirect('/login);
+                }
+
+S14 :  create logout option : 
+            add a route '/logout' controller logoutUser : res.clearCookie('accessToken);
+            cookies deleted and user logout 
 
 
 

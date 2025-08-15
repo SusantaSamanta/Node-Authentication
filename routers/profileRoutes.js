@@ -2,7 +2,15 @@ import { Router } from "express";
 const router = Router();
 
 router.get("/", (req, res) => {
-    res.send("Hello this is profile page"); 
+    if(req.user){
+        res.render('userProfile'); 
+    }else{
+        res.redirect('/login');
+    }
+});
+
+router.get("/userData", (req, res) => {
+    res.json(req.user);
 });
 
 

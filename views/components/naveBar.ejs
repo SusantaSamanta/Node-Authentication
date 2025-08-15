@@ -56,22 +56,30 @@
 <body>
     <div id="naveBar">
         <a class="naveLinks" href="/">Home</a>
-        <a class="naveLinks" href="/login">Login</a>
+        <a class="naveLinks" id="loginLink" href="/login">Login</a>
+        <a class="naveLinks" id="logoutLink" href="/logout">Logout</a>
         <a class="naveLinks" href="/register">Sign up</a>
         <a class="naveLinks2" href="/profile"><img id="naveProfile" src="../images/default-profile.jpg" /></a>
         
     </div>
     <script>
         const naveLinks2 = document.querySelector(".naveLinks2");
-        const userProfileShowOrNot = async () => {
+        const userLoggedInEvent = async () => {
             const response = await fetch('/login/isUserLogin', {
                 method: "GET",
             });
             const { userLoginOrNot } = await response.json();
             naveLinks2.style.display = userLoginOrNot ? 'block' : 'none';
+            if(userLoginOrNot){
+                loginLink.style.display = 'none';
+                logoutLink.style.display = 'block'
+            }else{
+                logoutLink.style.display = 'none'
+                loginLink.style.display = 'block';
+            }
         }
-        userProfileShowOrNot();
-
+        userLoggedInEvent();
+        
 
     </script>
 </body>
