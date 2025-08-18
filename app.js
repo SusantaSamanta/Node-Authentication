@@ -164,8 +164,15 @@ S14 :  create logout option :
             add a route '/logout' controller logoutUser : res.clearCookie('accessToken);
             cookies deleted and user logout 
 
+S15 : create another schema for save favorite county in db : 
+            countrySchema = {
+                nameOrId : 'dsf',
+                other : '',
+                user: {type: mongoose.Schema.ObjectId, ref: userDetails}
+            }
+        mean it can store country for each user separately 
 
-
+S16 : create '/countryapp/savecountry' (post) for postCountrySave controller to save favorite in DB
 
 */
 

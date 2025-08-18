@@ -6,6 +6,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+        integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
     <style>
         * {
             margin: 0px;
@@ -32,7 +35,7 @@
             justify-content: center;
             align-items: center;
             border-radius: 20px;
-
+            position: relative;
             h1 {
                 font-size: 35px;
                 letter-spacing: 2px;
@@ -68,49 +71,79 @@
             border-radius: 40px;
             cursor: pointer;
         }
+        #favoriteIcon{
+            color: #b6b6b6;
+            font-size: 25px;
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            cursor: pointer;
+        }
     </style>
 
 </head>
 
 <body>
     <%- include("components/naveBar") %>
-    <div id="appBody">
-        <section id="jokesContainer">
-            <h1>Welcome to Jokes Center 🤣</h1>
-            <div id="jokesDiv">
-                I am an whiskey diet I have lost three days already.
-            </div>
-            <div id="newButton">Get new Jokes</div>
-        </section>
-    </div>
-    <%- include("components/footer") %>
-    <script>
+        <div id="appBody">
+            <section id="jokesContainer">
+                <h1>Welcome to Jokes Center 🤣</h1>
+                <div id="jokesDiv">
+                    I am an whiskey diet I have lost three days already.
+                </div>
+                <div id="newButton">Get new Jokes</div>
+                <i id="favoriteIcon" class="fa-solid fa-heart-circle-plus"></i>
+            </section>
+        </div>
+        <%- include("components/footer") %>
+            <script>
 
-
-        const apiUrl = "https://icanhazdadjoke.com/";
-        showJokes = async () => {
-            try {
-                const response = await fetch(apiUrl, {
-                    headers: {
-                        Accept: "application/json",
-                    },
-                });
-                const data = await response.json();
-                console.log(data.id);
+                let nameID = 'india';
+                const apiUrl = "https://icanhazdadjoke.com/";
+                showJokes = async () => {
+                    try {
+                        const response = await fetch(apiUrl, {
+                            headers: {
+                                Accept: "application/json",
+                            },
+                        });
+                        const data = await response.json();
+                        console.log(data.id);
+                        console.log(data.joke);
+                        document.getElementById("jokesDiv").innerText = data.joke;
+                        nameID = data.id;
+                        
+                    }
+                    catch (err) {
+                        window.alert("Some thing wrong please try again");
+                        console.log(err);
+                    }
+                }
+                document.getElementById("newButton").addEventListener('click', showJokes);
                 
-                console.log(data.joke);
-                document.getElementById("jokesDiv").innerText = data.joke;
+                const favoriteIcon = document.getElementById("favoriteIcon");
+                favoriteIcon.addEventListener('click', async () => {
+                    const dataToSend = {
+                        name : nameID,
+                        details: document.getElementById("jokesDiv").innerText,
+                    }
+                    const response = await fetch('/countryapp/savecountry', {
+                        method: 'post',
+                        headers: {
+                            'content-type': 'application/json',
+                        },
+                        body: JSON.stringify(dataToSend),
+                    });
+                    const data = await response.json();
+                    if(data.success){
+                        alert(data.massage);
+                    }else{
+                        alert(data.massage);
+                    }
+                    console.log(data);
+                })
 
-            }
-            catch (err) {
-                window.alert("Some thing wrong please try again");
-                console.log(err);
-            }
-        }
-
-        document.getElementById("newButton").addEventListener('click', showJokes);
-
-    </script>
+            </script>
 
 
 </body>

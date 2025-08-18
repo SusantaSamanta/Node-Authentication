@@ -24,7 +24,7 @@ const userSchema = mongoose.Schema(
 
 );
 
-export const user = mongoose.model('userDetail', userSchema); // in db module will be look like userDetail
+export const user = mongoose.model('userDetail', userSchema); // in db module will be look like userDetails
 
 
 
