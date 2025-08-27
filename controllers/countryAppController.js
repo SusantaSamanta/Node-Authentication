@@ -14,17 +14,21 @@ export const getCountryApp = async (req, res) => {
 
 export const postCountrySave = async (req, res) => {
     if (req.user) {
-        const { name, details } = req.body;
+        // console.log(req.body);
+        const { name, flag, capital, continent, languages } = req.body;
         const nowUser = await user.findOne({ name: req.user.name }); // retrieve all detail of user which login
         const favoriteCountryDetail = {
             name: name,
-            detail: details,
+            flag: flag,
+            capital: capital,
+            continent: continent,
+            languages: languages,
             user: nowUser._id, // save favorite county depending of userId who login
         }
-        
-        if (await countryTable.findOne({ name: name, user: nowUser._id })){ // if country already in db for this user 
+
+        if (await countryTable.findOne({ name: name, user: nowUser._id })) { // if country already in db for this user 
             res.status(409).json({ success: false, massage: 'Country already added in favorite......!' });
-        }else{ // if country not in db
+        } else { // if country not in db
             await countryTable.create(favoriteCountryDetail);
             res.status(202).json({ success: true, massage: 'Country added to favorite......!' });
         }
