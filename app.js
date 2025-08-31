@@ -174,6 +174,14 @@ S15 : create another schema for save favorite county in db :
 
 S16 : create '/countryapp/savecountry' (post) for postCountrySave controller to save favorite in DB
 
+S17 : Actual county app  added 
+
+S18:  Favorite feature add and status added 
+
+
+
+
+
 */
 
 

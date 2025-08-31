@@ -48,9 +48,12 @@
             color: #d5d5d5;
             font-size: 25px;
             position: absolute;
-            bottom: 20px;
-            right: 20px;
+            bottom: 30px;
+            right: 30px;
             cursor: pointer;
+            /* border: 1px solid red; */
+            z-index: 3;
+            user-select: none;
         }
 
         #inputSection {
@@ -238,7 +241,8 @@
         <div id="appBody">
 
             <section id="container">
-                <i id="favoriteIcon" class="fa-solid fa-heart-circle-plus"></i>
+                <!-- <i id="favoriteIcon" class="fa-solid fa-heart-circle-plus"></i> -->
+                <i id="favoriteIcon" class="fa-solid fa-heart"></i>
                 <div id="inputSection">
                     <div id="inputContainer">
                         <input id="inputBox" placeholder="Search">
@@ -424,6 +428,7 @@
 
                         countryFlagImage.src = countryDetailsArr[0] = data[targetIndex].flags.svg;
                         countryHeading.innerText = countryDetailsArr[1] = (data[targetIndex].name.common).toUpperCase();
+                        favoriteBtnColorSet();
                         countryName.innerText = countryDetailsArr[2] = `Country Name: ${data[targetIndex].name.common} (${data[targetIndex].cioc})`;
                         capital.innerText = countryDetailsArr[3] = `Capital: ${data[targetIndex].capital}`;
                         continent.innerText = countryDetailsArr[4] = `Continent: ${data[targetIndex].continents[0]}`;
@@ -438,7 +443,7 @@
                         localStorage.setItem('countryDetailsArrL', JSON.stringify(countryDetailsArr));
 
                         countryHeadingSize();
-                        (container.offsetHeight > 650) ? container.style.cssText = 'width: 550px; padding: 30px;' : container.style.cssText = 'width: 500px; padding: 40px;';
+                        // (container.offsetHeight > 650) ? container.style.cssText = 'width: 550px; padding: 30px;' : container.style.cssText = 'width: 550px; padding: 30px;';
 
 
                     }
@@ -459,6 +464,7 @@
                         countryDetailsArr = test;
                         countryFlagImage.src = countryDetailsArr[0];
                         countryHeading.innerText = countryDetailsArr[1];
+                        favoriteBtnColorSet();
                         countryName.innerText = countryDetailsArr[2];
                         capital.innerText = countryDetailsArr[3];
                         continent.innerText = countryDetailsArr[4];
@@ -473,9 +479,13 @@
                         countryHeadingSize();
                         (container.offsetHeight > 650) ? container.style.cssText = 'width: 550px; padding: 30px;' : container.style.cssText = 'width: 500px; padding: 40px;';
 
+
+
                     }
-                    else
-                        console.log('null...')
+                    else {
+                        console.log('null...');
+                        favoriteBtnColorSet();
+                    }
                 }
 
 
@@ -515,10 +525,6 @@
                 const favoriteIcon = document.getElementById("favoriteIcon");
                 favoriteIcon.addEventListener('click', async () => {
                     const dataToSend = setData();
-                    // const dataToSend = {
-                    //     name: 'india',
-                    //     details: 'india is good ',
-                    // }
                     const response = await fetch('/countryapp/savecountry', {
                         method: 'post',
                         headers: {
@@ -529,10 +535,11 @@
                     const data = await response.json();
                     if (data.success) {
                         alert(data.massage);
+                        favoriteBtnColorSet();
                     } else {
                         alert(data.massage);
                     }
-                    console.log(data);
+                    // console.log(data);
                 });
 
                 let defaultDataToSend = {
@@ -561,180 +568,32 @@
                 }
 
 
+                const favoriteBtnColorSet = async () => {
+                    console.log(countryHeading.innerText);
+
+                    const response = await fetch('/countryapp/favoritestatus', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ countryName: countryHeading.innerText }),
+                    });
+
+                    const data = await response.json();
+
+                    if (data.success) {
+                        favoriteIcon.style.color = 'red';
+                    } else {
+                        // alert(data.message);
+                        favoriteIcon.style.color = '#d5d5d5';
+                    }
+
+                    console.log(data);
+                };
+                // favoriteBtnColorSet();  //call this function when county name change
 
 
             </script>
 </body>
 
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<!-- <!DOCTYPE html>
-<html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-    <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
-        integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
-        crossorigin="anonymous" referrerpolicy="no-referrer" />
-    <style>
-        * {
-            margin: 0px;
-            padding: 0px;
-            box-sizing: border-box;
-        }
-
-        #appBody {
-            height: 100vh;
-            background: #1d1d1d;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-family: Arial, Helvetica, sans-serif;
-        }
-
-        #jokesContainer {
-            min-height: 300px;
-            width: 650px;
-            padding-block: 20px;
-            background: white;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            border-radius: 20px;
-            position: relative;
-            h1 {
-                font-size: 35px;
-                letter-spacing: 2px;
-                margin-bottom: 20px;
-            }
-        }
-
-        #jokesDiv {
-            width: 550px;
-            min-height: 50px;
-            text-align: center;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            margin-bottom: 20px;
-            font-size: 18px;
-            letter-spacing: 1px;
-            font-weight: 500;
-            border: 0px solid red;
-        }
-
-        #newButton {
-            height: 40px;
-            padding-inline: 20px;
-            font-size: 20px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-weight: 600;
-            outline: 2px solid rgb(9, 9, 9);
-            border: 3px solid rgb(255, 255, 255);
-            background: yellow;
-            border-radius: 40px;
-            cursor: pointer;
-        }
-        #favoriteIcon{
-            color: #b6b6b6;
-            font-size: 25px;
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            cursor: pointer;
-        }
-    </style>
-
-</head>
-
-<body>
-    <%- include("components/naveBar") %>
-        <div id="appBody">
-            <section id="jokesContainer">
-                <h1>Welcome to Jokes Center 🤣</h1>
-                <div id="jokesDiv">
-                    I am an whiskey diet I have lost three days already.
-                </div>
-                <div id="newButton">Get new Jokes</div>
-                <i id="favoriteIcon" class="fa-solid fa-heart-circle-plus"></i>
-            </section>
-        </div>
-        <%- include("components/footer") %>
-            <script>
-
-                let nameID = 'india';
-                const apiUrl = "https://icanhazdadjoke.com/";
-                showJokes = async () => {
-                    try {
-                        const response = await fetch(apiUrl, {
-                            headers: {
-                                Accept: "application/json",
-                            },
-                        });
-                        const data = await response.json();
-                        console.log(data.id);
-                        console.log(data.joke);
-                        document.getElementById("jokesDiv").innerText = data.joke;
-                        nameID = data.id;
-                        
-                    }
-                    catch (err) {
-                        window.alert("Some thing wrong please try again");
-                        console.log(err);
-                    }
-                }
-                document.getElementById("newButton").addEventListener('click', showJokes);
-                
-                const favoriteIcon = document.getElementById("favoriteIcon");
-                favoriteIcon.addEventListener('click', async () => {
-                    const dataToSend = {
-                        name : nameID,
-                        details: document.getElementById("jokesDiv").innerText,
-                    }
-                    const response = await fetch('/countryapp/savecountry', {
-                        method: 'post',
-                        headers: {
-                            'content-type': 'application/json',
-                        },
-                        body: JSON.stringify(dataToSend),
-                    });
-                    const data = await response.json();
-                    if(data.success){
-                        alert(data.massage);
-                    }else{
-                        alert(data.massage);
-                    }
-                    console.log(data);
-                })
-
-            </script>
-
-
-</body>
-
-</html> -->

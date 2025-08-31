@@ -56,6 +56,7 @@
 <body>
     <div id="naveBar">
         <a class="naveLinks" href="/">Home</a>
+        <a class="naveLinks" id="favoriteLink" href="/countryapp/favoritecounters">Favorites</a>
         <a class="naveLinks" id="loginLink" href="/login">Login</a>
         <a class="naveLinks" id="logoutLink" href="/logout">Logout</a>
         <a class="naveLinks" href="/register">Sign up</a>
@@ -72,10 +73,12 @@
             naveLinks2.style.display = userLoginOrNot ? 'block' : 'none';
             if(userLoginOrNot){
                 loginLink.style.display = 'none';
-                logoutLink.style.display = 'block'
+                logoutLink.style.display = 'block';
+                favoriteLink.style.display = 'block';
             }else{
-                logoutLink.style.display = 'none'
+                logoutLink.style.display = 'none';
                 loginLink.style.display = 'block';
+                favoriteLink.style.display = 'none';
             }
         }
         userLoggedInEvent();

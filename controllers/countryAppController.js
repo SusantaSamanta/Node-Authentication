@@ -38,3 +38,26 @@ export const postCountrySave = async (req, res) => {
 }
 
 
+export const postFavoriteStatus = async (req, res) => {
+    const nowUser = await user.findOne({ name: req.user.name });
+    if (req.user) {
+        if (await countryTable.findOne({ name: req.body.countryName, user: nowUser._id }))
+            return res.status(409).json({ success: true });
+        return res.status(202).json({ success: false });
+
+    } else {
+        res.redirect('/login');
+    }
+}
+
+export const getFavoriteCounters = async (req, res) => {
+    if (req.user) {
+        const nowUser = await user.findOne({ name: req.user.name });
+        const favorites = await countryTable.find({ user: nowUser })
+        // console.log(favorites);
+        res.render('favoriteCountryPage', { favorites });
+    } else {
+        res.redirect('/login');
+    }
+}
+

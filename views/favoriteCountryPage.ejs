@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Country Info Card</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+        #favoritePage{
+            min-height: 100vh;
+            background: #0f0f0f;
+            padding-top: 80px;
+        }
+        #pageHeading{
+            width: 100%;
+            /* border: 1px solid red; */
+            color: white;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+        }
+        #favoriteCont {
+            height: auto;
+            padding-block: 60px;
+            /* background: url('./images/background.png') no-repeat center center; */
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+            gap: 30px;
+            /* border: 2px solid red; */
+        }
+        
+        .card {
+            width: 320px;
+            height: 340px;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #ffffff;
+            border-radius: 15px;
+            text-align: center;
+        }
+        
+        .card img {
+            max-width: 100%;
+            max-height: 180px;
+            margin-bottom: 10px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .card h2 {
+            font-size: 22px;
+            margin-bottom: 8px;
+            color: #333;
+        }
+
+        .info-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            justify-content: center;
+        }
+
+        .info-item {
+            background-color: #f1f1f1;
+            padding: 6px 12px;
+            border-radius: 12px;
+            font-size: 13px;
+            color: #333;
+        }
+    </style>
+</head>
+
+<body>
+    <%- include('components/naveBar') %>
+    <div id="favoritePage">
+        <h1 id="pageHeading">Favorite Countries</h1>
+        <section id="favoriteCont">
+            <% favorites.forEach(country=> { %>
+                <div class="card">
+                    <img src="<%= country.flag %>" alt="<%= country.name %> Flag">
+                    <h2><%= country.name %></h2>
+                    <div class="info-group">
+                        <div class="info-item"><%= country.capital %></div>
+                        <div class="info-item"><%= country.continent %></div>
+                        <div class="info-item"><%= country.languages %></div>
+                    </div>
+                </div>
+                <% }) %>
+            </section>
+        </div>
+            
+        <%- include('components/footer') %>
+</body>
+
+</html>
