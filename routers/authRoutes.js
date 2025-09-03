@@ -1,7 +1,7 @@
 import { Router } from "express";
 const router = Router();
 
-import { getRegisterPage, postRegister, getLoginPage, postLogin, isUserLoginResponse, logoutUssr } from "../controllers/authController.js";
+import { getRegisterPage, postRegister, getLoginPage, postLogin, isUserLoginResponse, logoutUser } from "../controllers/authController.js";
 // to cline this routers page we can use this controllers 
 
 router.get('/register', getRegisterPage);
@@ -13,7 +13,7 @@ router.route('/login').get(getLoginPage).post(postLogin);
 
 router.get('/login/isUserLogin', isUserLoginResponse);
 
-router.get('/logout', logoutUssr);
+router.get('/logout', logoutUser);
 
 
 export const authRoutes = router;

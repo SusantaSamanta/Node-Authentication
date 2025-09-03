@@ -154,11 +154,11 @@
                 });
                 const response = await res.json();
                 if (response.success) { // true
-                    alert(response.massage);
-                    window.location.href = '/login';
+                    alert(response.message);
+                    window.location.href = '/';
                 } else {
                     emailInp.style.border = "3px solid red"; // if exist 
-                    alert(response.massage);
+                    alert(response.message);
                 }
             });
 

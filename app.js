@@ -1,8 +1,10 @@
 import express from 'express';
 const app = express();
 
-import { authRoutes } from './routers/authRoutes.js';
 import cookieParser from 'cookie-parser';
+import requestIp from 'request-ip';
+
+import { authRoutes } from './routers/authRoutes.js';
 import { countryAppRoutes } from './routers/countryAppRoutes.js';
 import { profileRouter } from './routers/profileRoutes.js';
 import { verifyAuthentication } from './middleware/verifyMiddleware.js';
@@ -24,7 +26,9 @@ app.get('/', (req, res) => {
 
 app.use(cookieParser());   // This middleWare is use for manege cookies // and we have to use it before those roots which we use 
 
-app.use(verifyAuthentication);
+app.use(requestIp.mw());  // by this we can access client ipaddress 
+
+app.use(verifyAuthentication);  // this middle is check on every route access 
 
 app.use(authRoutes);      // '/register', '/login' routers are control from this route
 app.use(countryAppRoutes);
@@ -178,7 +182,42 @@ S17 : Actual county app  added
 
 S18:  Favorite feature add and status added 
 
+////// Now we start for implement Hybrid Authentication /////
 
+S19 :  create session schema : 
+            where we need user ipaddress we get it by 'npm i request-ip' this package 
+                app.use(requestIp.mw());  // by this we can access client ipaddress like : req.clientIp;
+
+S20 : in postLogin : insert user in sessionTable
+s20.1 : generate accessToken and refreshToken using session id : and set this 2 token in cookie 
+
+                if user not accessing WB for 15minutes accessToken deleted 
+                    then we have to create again accessToken without entering PW again 
+                        for this reason we need to help refreshToken to get sessionID 
+                            with the help of sessionId we retrieve corresponding user 
+                                and create again accessToken 
+                                      we do this cycle (using verifyMiddle) utile refreshToken is not deleted (7day)
+                                          if it deleted  then user have to login manually 
+
+S21 : in verifyMiddleware : 
+            if accessToken and refreshToken are not present the req.user = null; (mean user logout);
+            if accessToken present mean user accessing WB with in 15minutes 
+                decode accessToken and set req.user = decodeToken
+            if accessToken not present 
+              but refreshToken present : 
+                 decode it and receive sessionID 
+                    with the help of sessionID receive corresponding userId
+                       help of this id receive user details from userTable 
+                            and create accessToken and refreshToken again 
+                                and set cookies 
+            if refreshToken is not present then user have to login manually 
+
+S22 : logout user : in logoutUser controller : 
+        delete the session record from sessionTable using sessionId from req.user who is logged in 
+        delete accessToken, refreshToken 
+
+S23 : login after register :  in postRegister 
+            afterRegisterLogin() 
 
 
 

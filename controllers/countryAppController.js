@@ -14,9 +14,8 @@ export const getCountryApp = async (req, res) => {
 
 export const postCountrySave = async (req, res) => {
     if (req.user) {
-        // console.log(req.body);
         const { name, flag, capital, continent, languages } = req.body;
-        const nowUser = await user.findOne({ name: req.user.name }); // retrieve all detail of user which login
+        const nowUser = await user.findOne({ _id: req.user._id }); // retrieve all detail of user which login
         const favoriteCountryDetail = {
             name: name,
             flag: flag,
@@ -39,7 +38,7 @@ export const postCountrySave = async (req, res) => {
 
 
 export const postFavoriteStatus = async (req, res) => {
-    const nowUser = await user.findOne({ name: req.user.name });
+    const nowUser = await user.findOne({ _id: req.user._id });
     if (req.user) {
         if (await countryTable.findOne({ name: req.body.countryName, user: nowUser._id }))
             return res.status(409).json({ success: true });
@@ -52,7 +51,7 @@ export const postFavoriteStatus = async (req, res) => {
 
 export const getFavoriteCounters = async (req, res) => {
     if (req.user) {
-        const nowUser = await user.findOne({ name: req.user.name });
+        const nowUser = await user.findOne({ _id: req.user._id});
         const favorites = await countryTable.find({ user: nowUser })
         // console.log(favorites);
         res.render('favoriteCountryPage', { favorites });
