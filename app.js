@@ -217,7 +217,62 @@ S22 : logout user : in logoutUser controller :
         delete accessToken, refreshToken 
 
 S23 : login after register :  in postRegister 
-            afterRegisterLogin() 
+            afterRegisterLogin() same as in postLogin()
+
+S24 : Verify email : 
+     add an attribute in userSchema 'isVerified' default false 
+      create verifyEmailTable schema 
+        create 'verify-email' router in authRoutes and verifyEmailPage controller
+          if user not login or verified : redirect to '/'
+            else : send the verifyEmailPage 
+              user click : resend verify email bolton hit
+S24.2 :   'resend-verification-link' (get) route with controller resendVerificationLink 
+            if user not login or verified : redirect to '/';
+              generate 8 digit token
+                delete record (existing token previously created token by user) from verifyEmailTable with userId 
+                  then insert token with corresponding user in verifyEmailTable 
+                    create a link using token, email (use URL Api to create this url)
+                      create an function to send email and token 'sendEmail'
+                        with parameter like to(user.email), subject, html(link, code)
+S24.3 :  install node mailer : nmp i nodemailer
+            create a folder called 'lib' 
+              create file called 'nodemailer.js'
+                create nodemailer.createTransport()
+                  give Ethereal mail, password
+                    export sendEmail(
+                      emailURL = transporter.sendMail()
+                        log(emailURL) This Ethereal url give the verification email & code page with corresponding html email response
+                    );
+                        give a alert that email has been sended  
+                            after this sendEmail() in resendVerificationLink controller redirect='/verify-email''
+
+S24.4: add a root '/verify-email-token' to check code or verification link that are send in Ethereal Email 
+        we code from user using query parameter 
+          for entering code in : '/verify-email' page : in this page code will enter in input box but email wil send as query using this line <input type='hidden' name='email' value='<%= email %>
+          for clicking verification link in : Ethereal Mail page 
+        After get code from user we do :
+          check if user already verified or not 
+            check req.query .token and .email present 
+              using this email fetch user data from userTable 
+                using this userData._id fetch tokenDetails from verifyTokenTable 
+                  check req.token == token in verifyTokenTable AND new Date() > expireAt
+                    for this user isVerified = true in db 
+                      and delete token from verifyTokenTable
+                        and render = 'afterVerifyPage', {verified: true}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

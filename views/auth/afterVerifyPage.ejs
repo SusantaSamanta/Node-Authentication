@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Email Verification</title>
+    <style>
+        #verifyEmailTokenContainer {
+            font-family: Arial, sans-serif;
+            background: url('/images/background.png') no-repeat center center;
+            background-size: cover;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .verify-message-box {
+            padding: 30px;
+            border-radius: 10px;
+            text-align: center;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            background-color: #fff;
+        }
+
+        .verify-message-box.success {
+            background-color: #e6ffed;
+            border: 1px solid #34d399;
+            color: #065f46;
+        }
+
+        .verify-message-box.error {
+            background-color: #ffe4e6;
+            border: 1px solid #f87171;
+            color: #7f1d1d;
+        }
+
+        .verify-message-box h1 {
+            margin-bottom: 10px;
+            font-size: 24px;
+        }
+
+        .verify-message-box p {
+            font-size: 16px;
+        }
+
+        .verify-message-box a {
+            display: inline-block;
+            margin-top: 20px;
+            text-decoration: none;
+            color: #2563eb;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+    <%- include('../components/naveBar') %>
+
+    <main id="verifyEmailTokenContainer">
+        <div class="verify-message-box <%= verified ? 'success' : 'error' %>">
+            <% if (verified) { %>
+                <h1>✅ Email Verified</h1>
+                <p>Thank you! Your email has been successfully verified.</p>
+                <a href="/">Go to Home</a>
+            <% } else { %>
+                <h1>❌ Verification Failed</h1>
+                <p>The code you entered is incorrect or has expired. Please try again.</p>
+                <a href="/verify-email">Resend Verification Code</a>
+            <% } %>
+        </div>
+    </main>
+
+    <%- include('../components/footer') %>
+</body>
+
+</html>

@@ -16,6 +16,7 @@ export const verifyAuthentication = async (req, res, next) => {
         try {
             const decodedToken = jwt.verify(accessToken, process.env.JWT_SECRET_KEY);
             req.user = decodedToken; // we use it to check is user login or not 
+            
         } catch (error) {
             console.log(error); //req.user is null as it is
         }
@@ -37,6 +38,7 @@ export const verifyAuthentication = async (req, res, next) => {
                 _id: userFromTable._id,
                 name: userFromTable.name,
                 email: userFromTable.email,
+                isVerified: userFromTable.isVerified,
                 sessionId: nowSession._id,
             }
             /// now create accessToken or jwtToken
@@ -53,6 +55,8 @@ export const verifyAuthentication = async (req, res, next) => {
         }
     }
 
+    
+    
 
     return next();
 } 

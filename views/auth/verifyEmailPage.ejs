@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Verify Your Email</title>
+  <style>
+    .verify-wrapper {
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: url('./images/background.png') no-repeat center center;
+      font-family: Arial, sans-serif;
+      padding: 30px 15px;
+    }
+
+    .verify-container {
+      width: 100%;
+      max-width: 460px;
+    }
+
+    .verify-title {
+      text-align: center;
+      margin-bottom: 25px;
+      font-size: 24px;
+      color: white;
+    }
+
+
+
+    .card {
+      background-color: white;
+      padding: 20px 24px;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+      margin-bottom: 20px;
+    }
+
+    .card p {
+      margin-bottom: 10px;
+      color: #444;
+    }
+
+    .card strong {
+      font-weight: 600;
+    }
+
+    .resend-btn {
+      background-color: #4b5563;
+      color: white;
+      padding: 10px 14px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+
+    .resend-btn:hover {
+      background-color: #374151;
+    }
+
+    form label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 500;
+      color: #333;
+    }
+
+    form input[type="text"] {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      margin-bottom: 15px;
+      font-size: 15px;
+    }
+
+    .verify-btn {
+      width: 30%;
+      background-color: #3b82f6;
+      color: white;
+      padding: 10px;
+      border: none;
+      border-radius: 6px;
+      font-size: 15px;
+      cursor: pointer;
+    }
+
+    .verify-btn:hover {
+      background-color: #2563eb;
+    }
+  </style>
+</head>
+
+<body>
+    <%- include('../components/naveBar') %>
+  <section class="verify-wrapper">
+    <div class="verify-container">
+      <h2 class="verify-title">Verify Your Email</h2>
+
+      <form class="card" action="/resend-verification-link" method="post">
+        <p>Email: <strong><%- email%></strong></p>
+        <p>Your email has not been verified yet. Please verify your email by entering the 8-digit code or request a new verification link.</p>
+        <button id="resendLinkBtn" type="submit" class="resend-btn">Resend Verification Link</button>
+      </form> 
+
+      <div class="card">
+        <form action="/verify-email-token" method="get">
+          <label for="code">Enter 8-Digit Verification Code</label>
+          <input type="text" id="code" name="token" maxlength="8" required pattern="\d{8}" title="Please enter 8 digit pin" /> <!-- in this line token send in req.query -->
+          <!-- pattern='/d{8}' must be number, title = "custom warning to show"  -->
+          <input type="hidden" name="email" value="<%= email %>"/> <!-- in this line user email send in req.query -->
+          <button class="verify-btn" type="submit">Verify Code</button>
+        </form>
+      </div>
+    </div>
+  </section>
+  <%- include('../components/footer') %>
+  <script>
+
+    const resendLinkBtn = document.getElementById('resendLinkBtn').addEventListener('click', () => {
+      alert('Verification link and code has been sended......');
+    });
+
+
+
+
+  </script>
+</body>
+
+</html>

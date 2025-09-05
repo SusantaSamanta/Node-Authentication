@@ -1,11 +1,12 @@
-import { user } from "../model/userSchema.js";
 import argon2 from 'argon2';
+import jwt from "jsonwebtoken";
+import crypto from 'crypto';
 import dotenv from 'dotenv';
 dotenv.config()
-import jwt from "jsonwebtoken";
+import { user } from "../model/userSchema.js";
 import { sessionTable } from "../model/sessionSchema.js";
-
-
+import { verifyEmailTable } from "../model/verifyEmailSchema.js";
+import { sendEmail } from '../lib/nodemailer.js';
 
 export const getRegisterPage = (req, res) => {  // after click : /register(get)   this function will run
    return res.render("auth/register");
@@ -47,7 +48,7 @@ export const postLogin = async (req, res) => {
    if (isUserExist) {
       const pwMatchOrNot = await argon2.verify(isUserExist.password, password);    // it can compare (dbHashedPW, userEnteredPW)
       if (pwMatchOrNot) {
-         const { _id, name, email } = isUserExist;
+         const { _id, name, email, isVerified } = isUserExist;
 
          /// now create sessions :
          const sessionObj = {
@@ -61,6 +62,7 @@ export const postLogin = async (req, res) => {
             _id: _id,
             name: name,
             email: email,
+            isVerified: isVerified,
             sessionId: session._id, // this above session id which we create
          }, process.env.JWT_SECRET_KEY, { expiresIn: '15m' });
 
@@ -119,18 +121,20 @@ export const logoutUser = async (req, res) => {
 
 
 const afterRegisterLogin = async (newUser, req, res) => {
+   const { _id, name, email, isVerified } = newUser;
    /// now create sessions :
    const sessionObj = {
-      user: newUser._id,
+      user: _id,
       ip: req.clientIp,
       userAgent: req.headers["user-agent"],
    }
    const session = await sessionTable.create(sessionObj);
    /// now create accessToken or jwtToken
    const accessToken = jwt.sign({
-      _id: newUser._id,
-      name: newUser.name,
-      email: newUser.email,
+      _id: _id,
+      name: name,
+      email: email,
+      isVerified: isVerified,
       sessionId: session._id, // this above session id which we create
    }, process.env.JWT_SECRET_KEY, { expiresIn: '15m' });
 
@@ -144,3 +148,113 @@ const afterRegisterLogin = async (newUser, req, res) => {
    res.status(200).json({ success: true, message: `Welcome ${newUser.name} your registration successful.....!` });
 
 }
+
+
+
+
+
+export const verifyEmailPage = async (req, res) => {
+   if (!req.user) return res.redirect('/login'); // if user not login 
+   const userData = await user.findOne({ _id: req.user._id })
+   if (!userData || userData.isVerified) return res.redirect('/'); // If the user not logged in OR the user already verified 
+   res.render('auth/verifyEmailPage', { email: userData.email });
+}
+
+export const resendVerificationLink = async (req, res) => {
+   if (!req.user) return res.redirect('/login'); // if user not login 
+   const userData = await user.findOne({ _id: req.user._id })
+   if (!userData || userData.isVerified) return res.redirect('/'); // If the user not logged in OR the user already verified 
+
+   const token = generateVerifyTaken();   // console.log(token);
+
+   await verifyEmailTable.deleteOne({ user: userData._id }); // because uer only verify with latest token so old token are deleted
+   await verifyEmailTable.create({ user: userData._id, token: token }); // add token for user 
+
+   const verifyLink = generateVerifyLink(userData.email, token);  //  console.log(verifyLink);
+
+   // send email for send verification email with token 
+   sendEmail({   // this is an function with parameter define in ../lib/nodemailer.js
+      to: userData.email,
+      subject: 'Verify your email',
+      html:
+         `  <!DOCTYPE html>
+         <html>
+           <head>
+             <meta charset="UTF-8">
+             <title>Verify Your Email</title>
+           </head>
+           <body style="font-family: Arial, sans-serif; background: #f9f9f9; padding: 20px; margin: 0;">
+             <table width="100%" cellpadding="0" cellspacing="0" style="max-width: 500px; margin: auto; background: #ffffff; border-radius: 8px; padding: 20px;">
+               <tr>
+                 <td style="text-align: center;">
+                   <h2 style="color: #333;">Email Verification</h2>
+                   <p style="color: #555;">Click the button below to verify your email address:</p>
+                   <a href="${verifyLink}" style="display: inline-block; padding: 10px 20px; background: #007bff; color: #fff; text-decoration: none; border-radius: 4px; margin: 15px 0;">
+                     Verify Email
+                   </a>
+                   <p style="color: #555;">Or enter this code:</p>
+                   <p style="font-size: 22px; font-weight: bold; color: #222; letter-spacing: 2px;">${token}</p>
+                   <p style="font-size: 12px; color: #888;">This code expires in 24 hours.</p>
+                 </td>
+               </tr>
+             </table>
+           </body>
+         </html>
+
+      `
+   }).catch(console.error);
+
+   // res.json({ massage: 'Email has been sended....' })
+   res.redirect('/verify-email');
+}
+
+const generateVerifyLink = (email, token) => {
+   //const encodedEmail = encodeURIComponent(email);
+   // return `${process.env.FRONTEND_URL}/verify-email-token?token=${token}&email=${encodedEmail}`;
+   ///// instead of create link manually use URL Api 
+   const url = new URL(`${process.env.FRONTEND_URL}/verify-email-token`);
+   url.searchParams.append('token', token);
+   url.searchParams.append('email', email);
+   // console.log(url.href);
+   return url.href;
+
+}
+const generateVerifyTaken = (digit = 8) => {
+   const max = 10 ** digit;
+   const min = 10 ** (digit - 1);  // it can generate 8 degit random code 
+   return crypto.randomInt(min, max).toString();
+}
+
+
+export const verifyVerificationCode = async (req, res) => {
+   if (!req.user) return res.redirect('/login'); // if user not login 
+   const userData = await user.findOne({ _id: req.user._id })
+   if (!userData || userData.isVerified) return res.redirect('/'); // If the user not logged in OR the user already verified 
+
+   if (!req.query.email || !req.query.token) {
+      return res.render('auth/afterVerifyPage', { verified: false });
+   }
+
+   const userExist = await user.findOne({ email: decodeURIComponent(req.query.email) })
+   if (!userExist) {
+      return res.render('auth/afterVerifyPage', { verified: false }); // mean in req.query.email is not exist any user
+   }
+   // if email or user is exist then 
+   const userTokenData = await verifyEmailTable.findOne({ user: userExist._id }); // receive data from verifyEmailTable which is generated from 'resendVerificationLink' controller 
+   if (userTokenData) {
+      const { token, expireAt } = userTokenData;
+      if (token === req.query.token && new Date() < expireAt) {
+         await user.updateOne({ _id: userExist._id }, { isVerified: true });  // if token match then for this user isVerified = true 
+         await verifyEmailTable.deleteOne({user: userExist._id});
+         return res.render('auth/afterVerifyPage', { verified: true });
+      }
+   }
+
+   res.render('auth/afterVerifyPage', { verified: false });
+
+
+
+
+}
+
+

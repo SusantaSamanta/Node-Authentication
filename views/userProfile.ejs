@@ -4,6 +4,9 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+        integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
     <title>User Profile</title>
     <style>
         * {
@@ -32,7 +35,7 @@
             border: 1px solid #9b9b9b63;
             border-radius: 12px;
             box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
-            background: #9b9b9b22;
+            background: #72727296;
             backdrop-filter: blur(50px);
             display: flex;
             flex-direction: column;
@@ -60,6 +63,19 @@
                 object-fit: cover;
                 border-radius: 50%;
             }
+
+            div {
+                height: 100%;
+                width: 100%;
+                border-radius: 50%;
+                background: skyblue;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                color: white;
+                font-size: 80px;
+                font-weight: 700;
+            }
         }
 
         .profile-card h2 {
@@ -74,8 +90,34 @@
             /* font-size: px; */
         }
 
+
+        #verifyContainer {
+            margin-top: 20px;
+            color: white;
+
+            span {
+                margin-left: 8px;
+                padding: 5px 12px;
+                border-radius: 20px;
+                background: #fff;
+                color: #d62828;
+                border: 1px solid #ffffff;
+                font-weight: bold;
+                text-decoration: none;
+            }
+            
+            a {
+                margin-left: 8px;
+                padding: 5px 13px 5px 12px;
+                border-radius: 20px;
+                color: white;
+                background: skyblue;
+                cursor: pointer;
+            }
+        }
+
         #logout-btn {
-            margin-top: 1.5rem;
+            margin-top: 40px;
             padding: 10px 20px;
             background-color: #ef4444;
             color: white;
@@ -98,17 +140,22 @@
             <div class="profile-card">
                 <!-- <img src="https://i.pravatar.cc/100" alt="User Profile" /> -->
                 <div id="profileIngContainer">
-                    <img src="../images/default-profile.jpg" alt="User Profile" />
+                    <!-- <img src="../images/default-profile.jpg" alt="User Profile" /> -->
+                    <div id="profileText">S</div>
                 </div>
                 <h2 id="userName">John Doe</h2>
                 <p id="userEmail">Email: johndoe@example.com</p>
+                <div id="verifyContainer">
+                    Email Verification :
+                    <span id="verifyStatus">Verify Now</span>
+                    <a href="verify-email" id="verifyLink"><i class="fa-solid fa-paper-plane"></i></a>
+                </div>
                 <button id="logout-btn" onclick="handleLogout()">Logout</button>
             </div>
         </section>
         <%- include('components/footer') %>
             <script>
                 function handleLogout() {
-                    // Send logout request or clear cookies/session here
                     window.location.href = '/logout';
                 }
                 const loadUserDetails = async () => {
@@ -117,13 +164,22 @@
                             method: 'get',
                         })
                         const userData = await response.json();
-                        // console.log(userData);
+                        console.log(userData);
+                        profileText.innerText = (userData.name[0]).trim().toUpperCase();
                         userName.innerText = userData.name;
                         userEmail.innerText = `Email : ${userData.email}`;
+                        if (userData.isVerified) {
+                            verifyStatus.innerText = 'Verified';
+                            verifyStatus.style.color = 'green';
+                            verifyLink.style.display = 'none';
+                        } else {
+                            verifyStatus.innerText = 'Not Verified';
+                            verifyStatus.style.color = 'red';
+                            verifyLink.style.display = 'inline-block';
+                        }
                     } catch (error) {
                         console.log(error);
                     }
-
                 }
                 loadUserDetails();
 
