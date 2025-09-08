@@ -8,13 +8,22 @@ import { authRoutes } from './routers/authRoutes.js';
 import { countryAppRoutes } from './routers/countryAppRoutes.js';
 import { profileRouter } from './routers/profileRoutes.js';
 import { verifyAuthentication } from './middleware/verifyMiddleware.js';
+import path from "path";
+import { fileURLToPath } from "url";
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 import { connectDB } from './DB-Connection.js';
 connectDB(); /// for connect db to mongodb 
 
-app.set('view engine', 'ejs');  // define temple engine
-app.use(express.static("public")); // public folder access from all pages 
+// Tell Express exactly where your views are
+app.set('views', path.join(__dirname, 'views'));
+app.set('view engine', 'ejs');  // define template engine
+
+// Tell Express where your static files are
+app.use(express.static(path.join(__dirname, 'public')));
+
 app.use(express.urlencoded());
 app.use(express.json()); // for receive frontend json data 
 
