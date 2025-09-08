@@ -47,7 +47,7 @@ app.use((req, res) => {
 
 
 
-const PORT = 3014;
+const PORT = process.env.PORT || 3002;
 app.listen(PORT, () => {
     console.log(`server : http://localhost:${PORT}/`);
 });
@@ -238,7 +238,7 @@ S24.3 :  install node mailer : nmp i nodemailer
             create a folder called 'lib' 
               create file called 'nodemailer.js'
                 create nodemailer.createTransport()
-                  give Ethereal mail, password
+                  give Ethereal mail, password 
                     export sendEmail(
                       emailURL = transporter.sendMail()
                         log(emailURL) This Ethereal url give the verification email & code page with corresponding html email response
@@ -260,6 +260,14 @@ S24.4: add a root '/verify-email-token' to check code or verification link that 
                       and delete token from verifyTokenTable
                         and render = 'afterVerifyPage', {verified: true}
 
+S25 : instead of Ethereal mail in console we implement real send mail on official gmail :
+        using gmail app password : In google account goto 'manege your..' search 'app passwords'
+                                    go 'app password' Now create an new : enter app name
+                                      click : 'cerate'
+                                        copy : hash password 
+          video reference : https://youtu.be/u-_Ygo2wcrs?si=jH2eoV5uLn5g4ZRc || WEBER MOHIT || How to send an email with nodemailer 
+        *when we user this hash password in transporter remove spaces between password           
+      
 
 
 

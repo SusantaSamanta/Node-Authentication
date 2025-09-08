@@ -51,7 +51,7 @@ export const verifyAuthentication = async (req, res, next) => {
 
 
         } catch (error) {
-            console.log(error); //req.user is null as it is
+            console.log('error',error); //req.user is null as it is
         }
     }
 

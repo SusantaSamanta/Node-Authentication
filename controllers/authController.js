@@ -165,12 +165,12 @@ export const resendVerificationLink = async (req, res) => {
    const userData = await user.findOne({ _id: req.user._id })
    if (!userData || userData.isVerified) return res.redirect('/'); // If the user not logged in OR the user already verified 
 
-   const token = generateVerifyTaken();   // console.log(token);
+   const token = generateVerifyTaken();
 
    await verifyEmailTable.deleteOne({ user: userData._id }); // because uer only verify with latest token so old token are deleted
-   await verifyEmailTable.create({ user: userData._id, token: token }); // add token for user 
+   await verifyEmailTable.create({ user: userData._id, token: token }); // add token for user in DB
 
-   const verifyLink = generateVerifyLink(userData.email, token);  //  console.log(verifyLink);
+   const verifyLink = generateVerifyLink(userData.email, token);
 
    // send email for send verification email with token 
    sendEmail({   // this is an function with parameter define in ../lib/nodemailer.js
@@ -204,14 +204,10 @@ export const resendVerificationLink = async (req, res) => {
       `
    }).catch(console.error);
 
-   // res.json({ massage: 'Email has been sended....' })
    res.redirect('/verify-email');
 }
 
 const generateVerifyLink = (email, token) => {
-   //const encodedEmail = encodeURIComponent(email);
-   // return `${process.env.FRONTEND_URL}/verify-email-token?token=${token}&email=${encodedEmail}`;
-   ///// instead of create link manually use URL Api 
    const url = new URL(`${process.env.FRONTEND_URL}/verify-email-token`);
    url.searchParams.append('token', token);
    url.searchParams.append('email', email);
@@ -245,7 +241,7 @@ export const verifyVerificationCode = async (req, res) => {
       const { token, expireAt } = userTokenData;
       if (token === req.query.token && new Date() < expireAt) {
          await user.updateOne({ _id: userExist._id }, { isVerified: true });  // if token match then for this user isVerified = true 
-         await verifyEmailTable.deleteOne({user: userExist._id});
+         await verifyEmailTable.deleteOne({ user: userExist._id });
          return res.render('auth/afterVerifyPage', { verified: true });
       }
    }
