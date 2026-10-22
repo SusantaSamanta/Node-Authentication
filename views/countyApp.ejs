@@ -291,62 +291,31 @@
 
 
                 ////////////////////     this part for retrieve all name fro the api   /////////////////////////
-                let countryNameArr = [];
-                const fetchCountryName = async () => {
+                let countryNameArr = [];   // [{ name: "India", alpha2Code: "IN", alpha3Code: "IND", flag: "🇮🇳" }, ...]
+                let countryCodeMap = {};    // { "India": "IN", ... }  (name -> alpha2 code)
 
-                    countryNameArr = ["Afghanistan", "Åland Islands", "Albania", "Algeria", "American Samoa",
-                        "Andorra", "Angola", "Anguilla", "Antarctica", "Antigua & Barbuda",
-                        "Argentina", "Armenia", "Aruba", "Ascension Island", "Australia",
-                        "Austria", "Azerbaijan", "Bahamas", "Bahrain", "Bangladesh",
-                        "Barbados", "Belarus", "Belgium", "Belize", "Benin",
-                        "Bermuda", "Bhutan", "Bolivia", "Bosnia & Herzegovina", "Botswana",
-                        "Brazil", "British Indian Ocean Territory", "British Virgin Islands", "Brunei", "Bulgaria",
-                        "Burkina Faso", "Burundi", "Cambodia", "Cameroon", "Canada",
-                        "Canary Islands", "Cape Verde", "Caribbean Netherlands", "Cayman Islands", "Central African Republic",
-                        "Ceuta & Melilla", "Chad", "Chile", "China", "Christmas Island",
-                        "Cocos (Keeling) Islands", "Colombia", "Comoros", "Congo - Brazzaville", "Congo - Kinshasa",
-                        "Cook Islands", "Costa Rica", "Côte d’Ivoire", "Croatia", "Cuba",
-                        "Curaçao", "Cyprus", "Czechia", "Denmark", "Diego Garcia",
-                        "Djibouti", "Dominica", "Dominican Republic", "Ecuador", "Egypt",
-                        "El Salvador", "Equatorial Guinea", "Eritrea", "Estonia", "Eswatini",
-                        "Ethiopia", "Falkland Islands", "Faroe Islands", "Fiji", "Finland",
-                        "France", "French Guiana", "French Polynesia", "French Southern Territories", "Gabon",
-                        "Gambia", "Georgia", "Germany", "Ghana", "Gibraltar",
-                        "Greece", "Greenland", "Grenada", "Guadeloupe", "Guam",
-                        "Guatemala", "Guernsey", "Guinea", "Guinea-Bissau", "Guyana",
-                        "Haiti", "Honduras", "Hungary", "Iceland",
-                        "India", "Indonesia", "Iran", "Iraq", "Ireland",
-                        "Isle of Man", "Israel", "Italy", "Jamaica", "Japan",
-                        "Jersey", "Jordan", "Kazakhstan", "Kenya", "Kiribati", "Kuwait", "Kyrgyzstan", "Laos", "Latvia",
-                        "Lebanon", "Lesotho", "Liberia", "Libya", "Liechtenstein",
-                        "Lithuania", "Luxembourg", "Macao SAR China", "Madagascar", "Malawi",
-                        "Malaysia", "Maldives", "Mali", "Malta", "Marshall Islands",
-                        "Martinique", "Mauritania", "Mauritius", "Mayotte", "Mexico",
-                        "Micronesia", "Moldova", "Monaco", "Mongolia", "Montenegro",
-                        "Montserrat", "Morocco", "Mozambique", "Myanmar (Burma)", "Namibia",
-                        "Nauru", "Nepal", "Netherlands", "New Caledonia", "New Zealand",
-                        "Nicaragua", "Niger", "Nigeria", "Niue", "Norfolk Island",
-                        "North Korea", "North Macedonia", "Northern Mariana Islands", "Norway", "Oman",
-                        "Pakistan", "Palau", "Palestinian Territories", "Panama", "Papua New Guinea",
-                        "Paraguay", "Peru", "Philippines", "Pitcairn Islands", "Poland",
-                        "Portugal", "Puerto Rico", "Qatar", "Réunion", "Romania",
-                        "Russia", "Rwanda", "Samoa", "San Marino", "São Tomé & Príncipe",
-                        "Saudi Arabia", "Senegal", "Serbia", "Seychelles", "Sierra Leone",
-                        "Singapore", "Sint Maarten", "Slovakia", "Slovenia", "Solomon Islands",
-                        "Somalia", "South Africa", "South Georgia & South Sandwich Islands", "South Korea", "South Sudan",
-                        "Spain", "Sri Lanka", "St. Barthélemy", "St. Helena", "St. Kitts & Nevis",
-                        "St. Lucia", "St. Martin", "St. Pierre & Miquelon", "St. Vincent & Grenadines", "Sudan",
-                        "Suriname", "Svalbard & Jan Mayen", "Sweden", "Switzerland", "Syria",
-                        "Taiwan", "Tajikistan", "Tanzania", "Thailand", "Timor-Leste",
-                        "Togo", "Tokelau", "Tonga", "Trinidad & Tobago", "Tunisia",
-                        "Turkey", "Turkmenistan", "Turks & Caicos Islands", "Tuvalu", "U.S. Outlying Islands",
-                        "U.S. Virgin Islands", "Uganda", "Ukraine", "United Arab Emirates", "United Kingdom",
-                        "United States", "Uruguay", "Uzbekistan", "Vanuatu", "Vatican City",
-                        "Venezuela", "Vietnam", "Wallis & Futuna", "Western Sahara", "Yemen",
-                        "Zambia", "Zimbabwe"
-                    ];
+                const fetchCountryName = async () => {
+                    try {
+                        const res = await fetch('https://countries.dev/countries');
+                        const data = await res.json();
+
+                        countryNameArr = data.map((country) => ({
+                            name: country.name,
+                            alpha2Code: country.alpha2Code,
+                            alpha3Code: country.alpha3Code,
+                            flag: country.flag
+                        }));
+
+                        countryCodeMap = countryNameArr.reduce((map, country) => {
+                            map[country.name] = country.alpha2Code;
+                            return map;
+                        }, {});
+                    }
+                    catch (err) {
+                        console.log(err);
+                    }
                 }
-                fetchCountryName();
+                let countryListPromise = fetchCountryName();
 
 
 
@@ -356,17 +325,17 @@
                     let value = inputBox.value;
                     let liTag = '';
 
-                    for (name of countryNameArr)
-                        if (name.toLowerCase().startsWith(value.toLowerCase()))
-                            storeName.push(name);
+                    for (const country of countryNameArr)
+                        if (country.name.toLowerCase().startsWith(value.toLowerCase()))
+                            storeName.push(country);
 
                     if (storeName.length == 0) {
                         suggestionCont.style.cssText = "display: none;"
                     }
                     else {
                         suggestionCont.style.cssText = "display: block;"
-                        for (name of storeName)
-                            liTag += `<li>${name}</li>`;
+                        for (const country of storeName)
+                            liTag += `<li data-name="${country.name}" data-code="${country.alpha2Code}">${country.name}</li>`;
 
                         suggestionCont.innerHTML = liTag;
                     }
@@ -377,8 +346,9 @@
 
                 ///////////  this part for click event for all list suggestion     ////////////
                 suggestionCont.addEventListener('click', (event) => {
-                    if (event.target) {
-                        inputBox.value = event.target.innerText;
+                    const liTag = event.target.closest('li');
+                    if (liTag) {
+                        inputBox.value = liTag.dataset.name;
                         searchFun();
                         suggestionCont.style.display = 'none';
                     }
@@ -411,34 +381,40 @@
                 ////////////////     this part for receive details using inputBox.value    /////////////////
 
                 const searchFun = async () => {
-                    nowName = inputBox.value;
+                    const nowName = inputBox.value.trim();
                     // console.log(nowName)
                     try {
-                        let res = await fetch(`https://restcountries.com/v3.1/name/${nowName}`);
-                        let data = await res.json();
+                        await countryListPromise;
 
-                        let targetIndex = 0;  // hold The Actual Index is which the inputBox data present
-                        for (index in data) {
-                            if (data[index].name.common == nowName) {
-                                targetIndex = index;                 // Some time api send multiple data for an input in array for retrieve the correct value i use it
-                                // console.log(data[index].name.common);
-                            }
-                        }
+                        // find the alpha-2 code of the country from the fetched list
+                        const fallbackCountry = countryNameArr.find(country => country.name.toLowerCase().includes(nowName.toLowerCase()));
+                        const alpha2Code = countryCodeMap[nowName] || fallbackCountry?.alpha2Code;
 
+                        if (!alpha2Code) throw new Error('Country not found');
 
-                        countryFlagImage.src = countryDetailsArr[0] = data[targetIndex].flags.svg;
-                        countryHeading.innerText = countryDetailsArr[1] = (data[targetIndex].name.common).toUpperCase();
+                        const res = await fetch(`https://countries.dev/alpha/${alpha2Code}`);
+                        if (!res.ok) throw new Error('Country not found');
+
+                        const data = await res.json();
+                        const currency = data.currencies?.[0];
+                        const languages = (data.languages || []).map(language => language.name).join(', ');
+                        const callingCodes = (data.callingCodes || []).map(code => `+${code}`).join(', ');
+                        const topLevelDomain = (data.topLevelDomain || []).join(', ');
+                        const coatOfArmsUrl = `https://mainfacts.com/media/images/coats_of_arms/${data.alpha2Code.toLowerCase()}.svg`;
+
+                        countryFlagImage.src = countryDetailsArr[0] = data.flags.svg;
+                        countryHeading.innerText = countryDetailsArr[1] = (data.name).toUpperCase();
                         favoriteBtnColorSet();
-                        countryName.innerText = countryDetailsArr[2] = `Country Name: ${data[targetIndex].name.common} (${data[targetIndex].cioc})`;
-                        capital.innerText = countryDetailsArr[3] = `Capital: ${data[targetIndex].capital}`;
-                        continent.innerText = countryDetailsArr[4] = `Continent: ${data[targetIndex].continents[0]}`;
-                        currency.innerText = countryDetailsArr[5] = `Currency: ${data[targetIndex].currencies[Object.keys(data[targetIndex].currencies)[0]].name} - ${Object.keys(data[targetIndex].currencies)[0]}`;
-                        isd.innerText = countryDetailsArr[6] = `ISD: ${Object.values(data[targetIndex].idd).join('')}`;
-                        cctld.innerText = countryDetailsArr[7] = `ccTLD: ${data[targetIndex].tld[0]}`;
-                        population.innerText = countryDetailsArr[8] = `Population: ${data[targetIndex].population}`;
-                        language.innerText = countryDetailsArr[9] = `Languages: ${Object.values(data[targetIndex].languages).join(', ')}`;
-                        countryDetailsArr[10] = data[targetIndex].coatOfArms.svg;
-                        (countryDetailsArr[10] != null) ? coatOfArms.src = countryDetailsArr[10] : coatOfArms.src = 'defaultCoatOfArms.png';
+                        countryName.innerText = countryDetailsArr[2] = `Country Name: ${data.flag} ${data.name} (${data.cioc})`;
+                        capital.innerText = countryDetailsArr[3] = `Capital: ${data.capital || 'Not Available'}`;
+                        continent.innerText = countryDetailsArr[4] = `Continent: ${data.region}`;
+                        currency.innerText = countryDetailsArr[5] = currency ? `Currency: ${currency.name} - ${currency.code}` : 'Currency: Not Available';
+                        isd.innerText = countryDetailsArr[6] = `ISD: ${callingCodes || 'Not Available'}`;
+                        cctld.innerText = countryDetailsArr[7] = `ccTLD: ${topLevelDomain || 'Not Available'}`;
+                        population.innerText = countryDetailsArr[8] = `Population: ${data.population}`;
+                        language.innerText = countryDetailsArr[9] = `Languages: ${languages}`;
+                        countryDetailsArr[10] = coatOfArmsUrl;
+                        coatOfArms.src = coatOfArmsUrl;
 
                         localStorage.setItem('countryDetailsArrL', JSON.stringify(countryDetailsArr));
 
@@ -473,7 +449,7 @@
                         cctld.innerText = countryDetailsArr[7];
                         population.innerText = countryDetailsArr[8];
                         language.innerText = countryDetailsArr[9];
-                        (countryDetailsArr[10] != null) ? coatOfArms.src = countryDetailsArr[10] : coatOfArms.src = 'defaultCoatOfArms.png';
+                        (countryDetailsArr[10] != null) ? coatOfArms.src = countryDetailsArr[10] : coatOfArms.removeAttribute('src');
 
 
                         countryHeadingSize();
@@ -523,7 +499,23 @@
 
 
                 const favoriteIcon = document.getElementById("favoriteIcon");
+                let isFavorite = false;   // true mean the current country is already in the favorite list
+
                 favoriteIcon.addEventListener('click', async () => {
+                    if (isFavorite) {  // already in favorite list  =>  remove it
+                        const response = await fetch('/countryapp/deletecountry', {
+                            method: 'DELETE',
+                            headers: {
+                                'content-type': 'application/json',
+                            },
+                            body: JSON.stringify({ name: countryHeading.innerText }),
+                        });
+                        const data = await response.json();
+                        alert(data.massage);
+                        favoriteBtnColorSet();
+                        return;
+                    }
+
                     const dataToSend = setData();
                     const response = await fetch('/countryapp/savecountry', {
                         method: 'post',
@@ -582,8 +574,10 @@
                     const data = await response.json();
 
                     if (data.success) {
+                        isFavorite = true;
                         favoriteIcon.style.color = 'red';
                     } else {
+                        isFavorite = false;
                         // alert(data.message);
                         favoriteIcon.style.color = '#d5d5d5';
                     }

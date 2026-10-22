@@ -7,6 +7,7 @@ import { user } from "../model/userSchema.js";
 import { sessionTable } from "../model/sessionSchema.js";
 import { verifyEmailTable } from "../model/verifyEmailSchema.js";
 import { sendEmail } from '../lib/nodemailer.js';
+import { setAuthCookies, clearAuthCookies } from '../lib/authCookie.js';
 
 export const getRegisterPage = (req, res) => {  // after click : /register(get)   this function will run
    return res.render("auth/register");
@@ -72,10 +73,7 @@ export const postLogin = async (req, res) => {
             { expiresIn: '7d' }
          );
 
-         res.cookie("accessToken", accessToken, { httpOnly: true, secure: true, maxAge: 15 * 60 * 1000 })
-         //                                        basic information for security          15 minute
-         res.cookie("refreshToken", refreshToken, { httpOnly: true, secure: true, maxAge: 7 * 24 * 60 * 60 * 1000 })
-         //                                                                                 7day
+         setAuthCookies(res, accessToken, refreshToken);
 
          res.status(200).json({ success: true, massage: `Welcome ${isUserExist.name}` });
       }
@@ -105,11 +103,19 @@ export const isUserLoginResponse = (req, res) => {
 
 export const logoutUser = async (req, res) => {
 
-   /// delete the session record from sessionTable using sessionId from req.user who is logged in 
-   await sessionTable.deleteOne({ _id: req.user.sessionId });
+   /// delete the session record from sessionTable using sessionId of the logged in user 
+   /// (req.sessionId is set by the verifyMiddleware , if the accessToken already expired we take it from the refreshToken)
+   let sessionId = req.sessionId;
+   if (!sessionId && req.cookies?.refreshToken) {
+      try {
+         sessionId = jwt.verify(req.cookies.refreshToken, process.env.JWT_SECRET_KEY).sessionId;
+      } catch (error) {
+         sessionId = null;
+      }
+   }
+   if (sessionId) await sessionTable.deleteOne({ _id: sessionId });
 
-   res.clearCookie("accessToken");
-   res.clearCookie("refreshToken");
+   clearAuthCookies(res);
 
    res.redirect('/');
 }
@@ -143,8 +149,7 @@ const afterRegisterLogin = async (newUser, req, res) => {
       process.env.JWT_SECRET_KEY,
       { expiresIn: '7d' }
    );
-   res.cookie("accessToken", accessToken, { httpOnly: true, secure: true, maxAge: 15 * 60 * 1000 })
-   res.cookie("refreshToken", refreshToken, { httpOnly: true, secure: true, maxAge: 7 * 24 * 60 * 60 * 1000 })
+   setAuthCookies(res, accessToken, refreshToken);
    res.status(200).json({ success: true, message: `Welcome ${newUser.name} your registration successful.....!` });
 
 }

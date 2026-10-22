@@ -49,6 +49,28 @@ export const postFavoriteStatus = async (req, res) => {
     }
 }
 
+
+export const deleteFavoriteCountry = async (req, res) => {
+    if (req.user) {
+        const { id, name } = req.body;
+
+        const filter = { user: req.user._id };   // only the owner of that favorite can delete it
+        if (id) filter._id = id;
+        else if (name) filter.name = name;
+        else return res.status(400).json({ success: false, massage: 'Country id or name not provided' });
+
+        const deletedCountry = await countryTable.findOneAndDelete(filter);
+
+        if (deletedCountry) {
+            return res.status(200).json({ success: true, massage: 'Country removed from favorite......!' });
+        }
+        return res.status(404).json({ success: false, massage: 'Country not found in favorite list......!' });
+
+    } else {
+        res.redirect('/login');
+    }
+}
+
 export const getFavoriteCounters = async (req, res) => {
     if (req.user) {
         const nowUser = await user.findOne({ _id: req.user._id});

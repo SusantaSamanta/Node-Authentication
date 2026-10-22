@@ -4,6 +4,9 @@
 <head>
     <meta charset="UTF-8">
     <title>Country Info Card</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+        integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
     <style>
         * {
             margin: 0;
@@ -32,44 +35,52 @@
             display: flex;
             flex-wrap: wrap;
             justify-content: center;
-            align-items: center;
+            align-items: stretch;
             gap: 30px;
             /* border: 2px solid red; */
         }
         
         .card {
             width: 320px;
-            height: 340px;
-            padding: 15px;
+            min-height: 340px;
+            padding: 15px 15px 60px;
             display: flex;
             flex-direction: column;
-            flex-wrap: wrap;
-            justify-content: space-between;
+            flex-wrap: nowrap;
             align-items: center;
+            justify-content: flex-start;
+            gap: 12px;
             background-color: #ffffff;
             border-radius: 15px;
             text-align: center;
+            position: relative;
+            overflow: hidden;
         }
         
         .card img {
-            max-width: 100%;
-            max-height: 180px;
-            margin-bottom: 10px;
+            width: 100%;
+            height: 170px;
+            object-fit: contain;
             border-radius: 10px;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
         }
 
         .card h2 {
             font-size: 22px;
-            margin-bottom: 8px;
+            margin: 0;
             color: #333;
+            width: 100%;
+            word-break: break-word;
         }
 
         .info-group {
+            width: 100%;
+            margin-top: auto;
             display: flex;
             flex-wrap: wrap;
             gap: 8px;
             justify-content: center;
+            align-items: stretch;
         }
 
         .info-item {
@@ -78,6 +89,50 @@
             border-radius: 12px;
             font-size: 13px;
             color: #333;
+            max-width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            word-break: break-word;
+        }
+
+        .removeBtn {
+            position: absolute;
+            bottom: 15px;
+            right: 15px;
+            width: 38px;
+            height: 38px;
+            padding: 0;
+            border: none;
+            border-radius: 50%;
+            background-color: #f1f1f1;
+            color: #e74c3c;
+            font-size: 16px;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2;
+            transition: all 0.15s ease-in;
+        }
+
+        .removeBtn:hover {
+            background-color: #e74c3c;
+            color: #ffffff;
+            transform: scale(1.1);
+        }
+
+        .removeBtn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        #emptyMsg {
+            color: #b5b5b5;
+            font-size: 18px;
+            letter-spacing: 1px;
+            padding-block: 40px;
         }
     </style>
 </head>
@@ -85,10 +140,13 @@
 <body>
     <%- include('components/naveBar') %>
     <div id="favoritePage">
-        <h1 id="pageHeading">Favorite Countries</h1>
+        <h1 id="pageHeading">Favorite Countries <span id="favoriteCount">(<%= favorites.length %>)</span></h1>
         <section id="favoriteCont">
+            <% if (favorites.length === 0) { %>
+                <p id="emptyMsg">You have not added any favorite country yet......!</p>
+                <% } %>
             <% favorites.forEach(country=> { %>
-                <div class="card">
+                <div class="card" id="card-<%= country._id %>">
                     <img src="<%= country.flag %>" alt="<%= country.name %> Flag">
                     <h2><%= country.name %></h2>
                     <div class="info-group">
@@ -96,12 +154,60 @@
                         <div class="info-item"><%= country.continent %></div>
                         <div class="info-item"><%= country.languages %></div>
                     </div>
+                    <button class="removeBtn" data-id="<%= country._id %>" data-name="<%= country.name %>"
+                        title="Remove from favorite" aria-label="Remove <%= country.name %> from favorite">
+                        <i class="fa-solid fa-heart"></i>
+                    </button>
                 </div>
                 <% }) %>
             </section>
         </div>
             
         <%- include('components/footer') %>
+
+        <script>
+            const removeButtons = document.querySelectorAll('.removeBtn');
+            const favoriteCount = document.getElementById('favoriteCount');
+            const favoriteCont = document.getElementById('favoriteCont');
+
+            removeButtons.forEach((button) => {
+                button.addEventListener('click', async () => {
+                    const countryName = button.dataset.name;
+                    if (!window.confirm(`Remove "${countryName}" from your favorite list?`)) return;
+
+                    button.disabled = true;
+
+                    try {
+                        const response = await fetch('/countryapp/deletecountry', {
+                            method: 'DELETE',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({ id: button.dataset.id }),
+                        });
+                        const data = await response.json();
+
+                        if (data.success) {
+                            document.getElementById(`card-${button.dataset.id}`).remove();
+
+                            const remaining = document.querySelectorAll('.card').length;
+                            favoriteCount.textContent = `(${remaining})`;
+
+                            if (remaining === 0) {
+                                favoriteCont.innerHTML = '<p id="emptyMsg">You have not added any favorite country yet......!</p>';
+                            }
+                        } else {
+                            button.disabled = false;
+                            window.alert(data.massage);
+                        }
+                    }
+                    catch (err) {
+                        button.disabled = false;
+                        console.log(err);
+                    }
+                });
+            });
+        </script>
 </body>
 
 </html>
