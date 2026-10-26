@@ -6,8 +6,9 @@ dotenv.config()
 import { user } from "../model/userSchema.js";
 import { sessionTable } from "../model/sessionSchema.js";
 import { verifyEmailTable } from "../model/verifyEmailSchema.js";
-import { sendEmail } from '../lib/nodemailer.js';
+// import { sendEmail } from '../lib/nodemailer.js';
 import { setAuthCookies, clearAuthCookies } from '../lib/authCookie.js';
+import { sendEmail } from '../lib/sendEmail.js';
 
 export const getRegisterPage = (req, res) => {  // after click : /register(get)   this function will run
    return res.render("auth/register");
@@ -178,11 +179,40 @@ export const resendVerificationLink = async (req, res) => {
    const verifyLink = generateVerifyLink(userData.email, token);
 
    // send email for send verification email with token 
-   sendEmail({   // this is an function with parameter define in ../lib/nodemailer.js
-      to: userData.email,
-      subject: 'Verify your email',
-      html:
-         `  <!DOCTYPE html>
+   // sendEmail({   // this is an function with parameter define in ../lib/nodemailer.js
+   //    to: userData.email,
+   //    subject: 'Verify your email',
+   //    html:
+   //       `  <!DOCTYPE html>
+   //       <html>
+   //         <head>
+   //           <meta charset="UTF-8">
+   //           <title>Verify Your Email</title>
+   //         </head>
+   //         <body style="font-family: Arial, sans-serif; background: #f9f9f9; padding: 20px; margin: 0;">
+   //           <table width="100%" cellpadding="0" cellspacing="0" style="max-width: 500px; margin: auto; background: #ffffff; border-radius: 8px; padding: 20px;">
+   //             <tr>
+   //               <td style="text-align: center;">
+   //                 <h2 style="color: #333;">Email Verification</h2>
+   //                 <p style="color: #555;">Click the button below to verify your email address:</p>
+   //                 <a href="${verifyLink}" style="display: inline-block; padding: 10px 20px; background: #007bff; color: #fff; text-decoration: none; border-radius: 4px; margin: 15px 0;">
+   //                   Verify Email
+   //                 </a>
+   //                 <p style="color: #555;">Or enter this code:</p>
+   //                 <p style="font-size: 22px; font-weight: bold; color: #222; letter-spacing: 2px;">${token}</p>
+   //                 <p style="font-size: 12px; color: #888;">This code expires in 24 hours.</p>
+   //               </td>
+   //             </tr>
+   //           </table>
+   //         </body>
+   //       </html>
+
+   //    `
+   // }).catch(console.error);
+
+   const emailRes = await sendEmail(userData.email,
+      "Verify your email",
+      `<!DOCTYPE html>
          <html>
            <head>
              <meta charset="UTF-8">
@@ -205,9 +235,13 @@ export const resendVerificationLink = async (req, res) => {
              </table>
            </body>
          </html>
+      `);
 
-      `
-   }).catch(console.error);
+
+   if (!emailRes) {
+      return res.status(500).json({ success: false,  message: "Failed to send verification email" });
+   }
+
 
    res.redirect('/verify-email');
 }
